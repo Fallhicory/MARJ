@@ -53,7 +53,6 @@ def load_model_and_labels():
     
     labels = []
     with open(LABELS_PATH) as f:
-        # --- MODIFICATION : Boucle classique au lieu d'une liste en une ligne ---
         for ligne in f.readlines():
             labels.append(ligne.strip())
             
@@ -99,7 +98,6 @@ def finetune_on_corrections(model, labels: list) -> None:
         print("[ATTENTION] Aucune correction enregistree.")
         return
 
-    # --- MODIFICATION : Boucle classique pour compter les images ---
     total = 0
     for _, _, fichiers in os.walk(CORRECTIONS_DIR):
         if fichiers:
@@ -212,7 +210,6 @@ def run():
     print("\nWebcam ouverte. Place un dechet devant la camera.")
     print("   [ESPACE] Classifier  |  [1-{}] Corriger  |  [s] Re-train  |  [q] Quitter\n".format(len(labels)))
 
-    # --- MODIFICATION : Generer la liste des touches de correction proprement ---
     touches_valides = []
     for i in range(1, len(labels) + 1):
         touches_valides.append(ord(str(i)))
