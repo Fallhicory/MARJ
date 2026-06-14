@@ -1,6 +1,8 @@
 # MARJ - Classification de Déchets
 
 MARJ est une application de classification de déchets en temps réel utilisant le deep learning (MobileNetV2) et TensorFlow/Keras.
+Ce projet a été fait dans le cadre du projet transverse de [ESIEE-IT](https://www.esiee-it.fr/fr) par Mathias KAMMERMAYER, Alexandre ADGE, Romain TANNEAU et Jules BREYTON.
+Le but de ce projet est de faire une poubelle capable de reconnaitre les types de déchets.
 
 ## Fonctionnalités
 - **Entraînement** : Script complet pour entraîner le modèle sur des données personnalisées.
