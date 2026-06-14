@@ -1,0 +1,39 @@
+# MARJ - Classification de Déchets
+
+MARJ est une application de classification de déchets en temps réel utilisant le deep learning (MobileNetV2) et TensorFlow/Keras.
+
+## Fonctionnalités
+- **Entraînement** : Script complet pour entraîner le modèle sur des données personnalisées.
+- **Classification en direct** : Interface webcam pour classifier les objets.
+- **Correction active** : Possibilité de corriger les erreurs de l'IA en direct pour affiner le modèle (Fine-tuning).
+
+## Installation
+
+> [!IMPORTANT]  
+> Utiliser la version python 3.10 car tensorflow n'a pas de version stable en python 3.13
+> 
+> Télécharger ici : [python 3.10 windows](https://www.python.org/ftp/python/3.11.0/python-3.11.0-amd64.exe)
+```bash
+pip install -r requirements.txt
+```
+
+## Utilisation
+1. **Entraînement** :
+   ```bash
+   python train.py
+   ```
+2. **Classification** :
+   ```bash
+   python classify.py
+   ```
+3. **App Flask** :
+   ```bash
+   python app.py
+   ```
+
+## Contrôles (Classification)
+- `ESPACE` : Capturer et classifier.
+- `1-4` : Corriger la classe si l'IA s'est trompée.
+- `S` : Relancer un entraînement rapide sur les corrections.
+- `Q` : Quitter.
+
