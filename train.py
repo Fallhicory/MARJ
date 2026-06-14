@@ -64,7 +64,7 @@ def create_sample_data():
 def auto_split_val():
     """Si val/ n'existe pas, prend 20% des images de train/ pour la validation."""
     if os.path.exists(VAL_DIR):
-        return ## Si le dossier val existe déjà on fait rien
+        return 
     print("[INFO] Dossier val/ absent -- split automatique 80/20 depuis train/...")
     
     #Parcour tous les dossiers de déchets dans train
@@ -149,7 +149,15 @@ def train():
         VAL_DIR, image_size=IMG_SIZE, batch_size=BATCH_SIZE, label_mode="categorical"
     )
 
-    labels = train_data.class_names
+    # 1. Inverser le dictionnaire (clé <-> valeur)
+    label_map = {}
+    for k, v in train_data.class_indices.items():
+        label_map[v] = k
+
+    # 2. Creer la liste des labels dans le bon ordre
+    labels = []
+    for i in range(len(label_map)):
+        labels.append(label_map[i])
     # ------------------------------------------------------------------------
 
     with open(LABELS_PATH, "w") as f:

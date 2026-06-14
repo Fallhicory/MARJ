@@ -50,8 +50,10 @@ def load_model_and_labels():
 
     model = tf.keras.models.load_model(MODEL_PATH)
     
-    with open(LABELS_PATH, encoding='utf-8-sig') as f:
-        labels = [l.strip() for l in f if l.strip()]
+    labels = []
+    with open(LABELS_PATH) as f:
+        for ligne in f.readlines():
+            labels.append(ligne.strip())
             
     print(f"[SUCCES] Modele charge -- {len(labels)} classes : {labels}")
     return model, labels
@@ -85,6 +87,54 @@ def save_correction(frame: np.ndarray, true_label: str) -> str:
     cv2.imwrite(path, frame)
     return path
 
+
+# --- FINE-TUNING SUR LES CORRECTIONS ------------------------------------------
+def finetune_on_corrections(model, labels: list) -> None:
+    """Re-entraine le modele sur les images corrigees accumulees."""
+    from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+    if not os.path.exists(CORRECTIONS_DIR):
+        print("[ATTENTION] Aucune correction enregistree.")
+        return
+
+    total = 0
+    for _, _, fichiers in os.walk(CORRECTIONS_DIR):
+        if fichiers:
+            total += len(fichiers)
+            
+    if total == 0:
+        print("[ATTENTION] Dossier corrections/ vide.")
+        return
+
+    print(f"\n[CONFIGURATION] Fine-tuning sur {total} correction(s)...")
+
+    gen = ImageDataGenerator(rescale=1./255, horizontal_flip=True)
+    data = gen.flow_from_directory(
+        CORRECTIONS_DIR,
+        target_size=IMG_SIZE,
+        batch_size=max(1, min(8, total)),
+        class_mode="categorical",
+        classes=labels,
+    )
+
+    if data.num_classes != len(labels):
+        print("[ATTENTION] Toutes les classes ne sont pas representees dans corrections/. "
+              "Ajoute au moins 1 image par classe ou patiente.")
+        return
+
+    # Degele les dernieres couches
+    model.trainable = True
+    for layer in model.layers[:-10]:
+        layer.trainable = False
+
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(FINETUNE_LR),
+        loss="categorical_crossentropy",
+        metrics=["accuracy"]
+    )
+    model.fit(data, epochs=FINETUNE_EPOCHS, verbose=1)
+    model.save(MODEL_PATH)
+    print(f"[SUCCES] Modele mis a jour -> {MODEL_PATH}")
 
 
 # --- OVERLAY UI ----------------------------------------------------------------
@@ -159,7 +209,6 @@ def run():
     print("\nWebcam ouverte. Place un dechet devant la camera.")
     print("   [ESPACE] Classifier  |  [1-{}] Corriger  |  [q] Quitter\n".format(len(labels)))
 
-    # --- MODIFICATION : Generer la liste des touches de correction proprement ---
     touches_valides = []
     for i in range(1, len(labels) + 1):
         touches_valides.append(ord(str(i)))
